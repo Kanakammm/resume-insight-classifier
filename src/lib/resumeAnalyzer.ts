@@ -1,3 +1,4 @@
+
 // This is a simulated version of the Python ML model functionality
 
 interface CategoryMapping {
@@ -106,7 +107,7 @@ const categoryKeywords: { [key: number]: string[] } = {
   30: ["data analysis", "data visualization", "sql", "excel", "tableau", "power bi", "reporting", "metrics", "insights"],
   31: ["cloud", "aws", "azure", "gcp", "infrastructure", "serverless", "lambda", "iaas", "paas"],
   32: ["mobile", "ios", "android", "flutter", "react native", "swift", "kotlin", "app development", "mobile ui"],
-  33: ["game", "unity", "unreal", "c++", "3d", "animation", "physics", "game design", "level design"],
+  33: ["game", "unity", "unreal", "c\\+\\+", "3d", "animation", "physics", "game design", "level design"],
   34: ["qa", "testing", "test automation", "selenium", "cypress", "jest", "test case", "bug tracking", "quality"],
   35: ["technical writing", "documentation", "knowledge base", "user guide", "api documentation", "content", "markdown"],
   36: ["cybersecurity", "security", "penetration testing", "vulnerability", "firewall", "encryption", "compliance", "audit"],
@@ -132,7 +133,9 @@ const predictCategory = (cleanedText: string): { id: number; confidence: number 
     scores[id] = 0;
     
     keywords.forEach(keyword => {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      // Escape special characters in the keyword for regex pattern
+      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
       const matches = (text.match(regex) || []).length;
       scores[id] += matches;
     });
