@@ -1,12 +1,12 @@
-
 // This is a simulated version of the Python ML model functionality
 
 interface CategoryMapping {
   [key: number]: string;
 }
 
-// Replicating the category mapping from the Python code
+// Replicating the category mapping from the Python code and extending it
 const categoryMapping: CategoryMapping = {
+  // Original categories
   15: "Java Developer",
   23: "Testing",
   8: "DevOps Engineer",
@@ -32,6 +32,29 @@ const categoryMapping: CategoryMapping = {
   21: "SAP Developer",
   5: "Civil Engineer",
   0: "Advocate",
+  
+  // Additional categories
+  25: "Frontend Developer",
+  26: "Backend Developer",
+  27: "Full Stack Developer",
+  28: "UI/UX Designer",
+  29: "Product Manager",
+  30: "Data Analyst",
+  31: "Cloud Engineer",
+  32: "Mobile Developer",
+  33: "Game Developer",
+  34: "QA Engineer",
+  35: "Technical Writer",
+  36: "Cybersecurity Specialist",
+  37: "AI Engineer",
+  38: "Machine Learning Engineer",
+  39: "Systems Administrator",
+  40: "Scrum Master",
+  41: "DevOps Manager",
+  42: "Content Strategist",
+  43: "SEO Specialist",
+  44: "Digital Marketer",
+  45: "Financial Analyst"
 };
 
 // Simplified version of the Python clean_resume function
@@ -73,6 +96,29 @@ const categoryKeywords: { [key: number]: string[] } = {
   21: ["sap", "erp", "abap", "hana", "modules", "implementation", "configuration"],
   5: ["civil", "engineering", "structural", "construction", "autocad", "building", "infrastructure"],
   0: ["advocate", "legal", "law", "attorney", "litigation", "counsel", "paralegal"],
+  
+  // Additional categories keywords
+  25: ["frontend", "react", "vue", "angular", "javascript", "typescript", "html", "css", "responsive"],
+  26: ["backend", "api", "server", "node", "express", "django", "spring", "php", "laravel"],
+  27: ["fullstack", "full stack", "frontend", "backend", "mern", "mean", "lamp", "web development", "api"],
+  28: ["ui", "ux", "design", "sketch", "figma", "adobe xd", "wireframe", "prototype", "user interface"],
+  29: ["product", "roadmap", "strategy", "agile", "scrum", "backlog", "user story", "sprint", "stakeholder"],
+  30: ["data analysis", "data visualization", "sql", "excel", "tableau", "power bi", "reporting", "metrics", "insights"],
+  31: ["cloud", "aws", "azure", "gcp", "infrastructure", "serverless", "lambda", "iaas", "paas"],
+  32: ["mobile", "ios", "android", "flutter", "react native", "swift", "kotlin", "app development", "mobile ui"],
+  33: ["game", "unity", "unreal", "c++", "3d", "animation", "physics", "game design", "level design"],
+  34: ["qa", "testing", "test automation", "selenium", "cypress", "jest", "test case", "bug tracking", "quality"],
+  35: ["technical writing", "documentation", "knowledge base", "user guide", "api documentation", "content", "markdown"],
+  36: ["cybersecurity", "security", "penetration testing", "vulnerability", "firewall", "encryption", "compliance", "audit"],
+  37: ["ai", "artificial intelligence", "neural networks", "nlp", "computer vision", "chatbot", "cognitive", "opencv"],
+  38: ["machine learning", "ml", "deep learning", "tensorflow", "pytorch", "scikit-learn", "regression", "classification"],
+  39: ["systems", "administration", "network", "windows", "linux", "unix", "server", "troubleshooting", "infrastructure"],
+  40: ["scrum", "agile", "sprint", "retrospective", "kanban", "backlog", "facilitation", "team", "ceremonies"],
+  41: ["devops", "manager", "team lead", "ci/cd", "release", "build", "deployment", "pipeline", "strategy"],
+  42: ["content", "strategy", "editorial", "content planning", "audience", "messaging", "branding", "storytelling"],
+  43: ["seo", "search engine", "keywords", "ranking", "backlinks", "sem", "google analytics", "organic traffic"],
+  44: ["digital marketing", "social media", "campaigns", "advertising", "ppc", "cpc", "conversion", "analytics"],
+  45: ["financial", "analysis", "modeling", "forecasting", "valuation", "accounting", "budgeting", "investment"]
 };
 
 // Simulate ML model prediction based on keyword matching
@@ -105,12 +151,12 @@ const predictCategory = (cleanedText: string): { id: number; confidence: number 
   
   // If no good matches, randomize a bit
   if (maxScore === 0) {
-    predictedId = Object.keys(categoryMapping)[Math.floor(Math.random() * Object.keys(categoryMapping).length)] as unknown as number;
+    const categoryIds = Object.keys(categoryMapping).map(id => parseInt(id));
+    predictedId = categoryIds[Math.floor(Math.random() * categoryIds.length)];
     maxScore = 1;
   }
   
   // Calculate a confidence percentage (max 95%)
-  const totalKeywords = Object.values(categoryKeywords).flat().length;
   const confidence = Math.min(95, Math.max(65, (maxScore / 10) * 100));
   
   return { id: predictedId, confidence };
