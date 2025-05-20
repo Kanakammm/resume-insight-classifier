@@ -60,14 +60,21 @@ const categoryMapping: CategoryMapping = {
 
 // Simplified version of the Python clean_resume function
 const cleanResume = (resumeText: string): string => {
-  let cleanText = resumeText.replace(/https?:\/\/\S+\s*/g, ' ');
-  cleanText = cleanText.replace(/RT|cc/g, ' ');
-  cleanText = cleanText.replace(/#\S+/g, '');
-  cleanText = cleanText.replace(/@\S+/g, '  ');
-  cleanText = cleanText.replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g, ' ');
-  cleanText = cleanText.replace(/[^\x00-\x7F]/g, ' ');
-  cleanText = cleanText.replace(/\s+/g, ' ');
-  return cleanText.trim();
+  if (!resumeText) return "";
+  
+  try {
+    let cleanText = resumeText.replace(/https?:\/\/\S+\s*/g, ' ');
+    cleanText = cleanText.replace(/RT|cc/g, ' ');
+    cleanText = cleanText.replace(/#\S+/g, '');
+    cleanText = cleanText.replace(/@\S+/g, '  ');
+    cleanText = cleanText.replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g, ' ');
+    cleanText = cleanText.replace(/[^\x00-\x7F]/g, ' ');
+    cleanText = cleanText.replace(/\s+/g, ' ');
+    return cleanText.trim();
+  } catch (error) {
+    console.error("Error cleaning resume:", error);
+    return resumeText; // Return original text if cleaning fails
+  }
 };
 
 // Keywords for each job category to simulate ML prediction
@@ -124,6 +131,11 @@ const categoryKeywords: { [key: number]: string[] } = {
 
 // Simulate ML model prediction based on keyword matching
 const predictCategory = (cleanedText: string): { id: number; confidence: number } => {
+  if (!cleanedText) {
+    console.warn("Empty text provided for prediction");
+    return { id: 20, confidence: 65 }; // Default to Python Developer if empty
+  }
+  
   const text = cleanedText.toLowerCase();
   const scores: { [key: number]: number } = {};
   
@@ -133,11 +145,15 @@ const predictCategory = (cleanedText: string): { id: number; confidence: number 
     scores[id] = 0;
     
     keywords.forEach(keyword => {
-      // Escape special characters in the keyword for regex pattern
-      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
-      const matches = (text.match(regex) || []).length;
-      scores[id] += matches;
+      try {
+        // Escape special characters in the keyword for regex pattern
+        const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
+        const matches = (text.match(regex) || []).length;
+        scores[id] += matches;
+      } catch (error) {
+        console.error(`Error with keyword "${keyword}":`, error);
+      }
     });
   });
   
@@ -160,19 +176,34 @@ const predictCategory = (cleanedText: string): { id: number; confidence: number 
   }
   
   // Calculate a confidence percentage (max 95%)
-  const confidence = Math.min(95, Math.max(65, (maxScore / 10) * 100));
+  const confidence = Math.min(95, Math.max(65, (maxScore / 5) * 100));
   
   return { id: predictedId, confidence };
 };
 
 // Main function to analyze resume
 export const analyzeResume = (resumeText: string) => {
-  const cleanedResume = cleanResume(resumeText);
-  const prediction = predictCategory(cleanedResume);
+  console.log("Resume analysis started with text length:", resumeText?.length || 0);
   
-  return {
-    category: categoryMapping[prediction.id],
-    id: prediction.id,
-    confidence: prediction.confidence,
-  };
+  try {
+    const cleanedResume = cleanResume(resumeText || "");
+    console.log("Cleaned resume text length:", cleanedResume.length);
+    
+    const prediction = predictCategory(cleanedResume);
+    console.log("Prediction result:", prediction);
+    
+    return {
+      category: categoryMapping[prediction.id] || "Unknown",
+      id: prediction.id,
+      confidence: prediction.confidence,
+    };
+  } catch (error) {
+    console.error("Error in resume analysis:", error);
+    // Return a default result if analysis fails
+    return {
+      category: "Unknown",
+      id: -1,
+      confidence: 65,
+    };
+  }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,6 +35,7 @@ export const ResumeUploader = () => {
         reader.onload = (event) => {
           if (event.target && typeof event.target.result === 'string') {
             setFileContent(event.target.result);
+            console.log("File content loaded:", event.target.result.substring(0, 100) + "...");
           }
         };
         reader.readAsText(selectedFile);
@@ -57,7 +57,14 @@ export const ResumeUploader = () => {
   };
 
   const handleAnalyze = async () => {
-    if (!fileContent) return;
+    if (!fileContent) {
+      toast({
+        title: "No Content",
+        description: "Unable to read file content. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     setProgress(0);
@@ -75,9 +82,12 @@ export const ResumeUploader = () => {
     }, 300);
 
     try {
-      // Simulate analysis with timeout
+      // Analyze immediately but keep progress animation
+      const analysisResult = analyzeResume(fileContent);
+      console.log("Analysis result:", analysisResult);
+      
+      // Simulate delay for better UX
       setTimeout(() => {
-        const analysisResult = analyzeResume(fileContent || "");
         setResult(analysisResult);
         setIsAnalyzing(false);
         clearInterval(progressInterval);
@@ -89,6 +99,7 @@ export const ResumeUploader = () => {
         });
       }, 3000);
     } catch (error) {
+      console.error("Analysis error:", error);
       setIsAnalyzing(false);
       clearInterval(progressInterval);
       toast({
@@ -118,6 +129,7 @@ export const ResumeUploader = () => {
                   reader.onload = (event) => {
                     if (event.target && typeof event.target.result === 'string') {
                       setFileContent(event.target.result);
+                      console.log("Dropped file content loaded:", event.target.result.substring(0, 100) + "...");
                     }
                   };
                   reader.readAsText(droppedFile);
